@@ -3,60 +3,81 @@ package BOJ_1991;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+class Node{
+    char val;
+    Node left;
+    Node right;
+    public Node(char val) {
+        this.val = val;
+    }
+}
 
 public class 트리순회_이유빈 {
-    static Map<String, List<String>> tree;
-    static StringBuilder sb;
+    static Map<Character, Node> tree = new HashMap<>();
+    static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
 
-        tree = new HashMap<>();
-        sb = new StringBuilder();
+        for(int i=0;i<n;i++){
+            st = new StringTokenizer(br.readLine());
 
-        for (int i=0; i<n; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            String parent = st.nextToken();
-            String left = st.nextToken();
-            String right = st.nextToken();
+            char parent = st.nextToken().charAt(0);
+            char left = st.nextToken().charAt(0);
+            char right = st.nextToken().charAt(0);
 
-            tree.put(parent, new ArrayList<>(Arrays.asList(left, right)));
+            tree.putIfAbsent(parent, new Node(parent));
+
+            Node parentNode = tree.get(parent);
+
+            if (left != '.') {
+                parentNode.left = new Node(left);
+                tree.put(left, parentNode.left);
+            }
+
+            if(right != '.') {
+                parentNode.right = new Node(right);
+                tree.put(right, parentNode.right);
+            }
         }
 
-        preOrder("A");
+        //각각 순회 저장
+        preOrder(tree.get('A'));
         sb.append("\n");
-        inOrder("A");
+        inOrder(tree.get('A'));
         sb.append("\n");
-        postOrder("A");
+        postOrder(tree.get('A'));
+
         System.out.println(sb);
     }
 
-    static void preOrder(String node) {
-        String left = tree.get(node).get(0);
-        String right = tree.get(node).get(1);
-
-        sb.append(node);
-        if (!left.equals(".")) preOrder(left);
-        if (!right.equals(".")) preOrder(right);
+    // 전위 순회 (루트 -> 왼쪽 -> 오른쪽)
+    static void preOrder(Node node) {
+        if (node == null) return;
+        sb.append(node.val);
+        preOrder(node.left);
+        preOrder(node.right);
     }
 
-    static void inOrder(String node) {
-        String left = tree.get(node).get(0);
-        String right = tree.get(node).get(1);
-
-        if (!left.equals(".")) inOrder(left);
-        sb.append(node);
-        if (!right.equals(".")) inOrder(right);
+    // 중위 순회 (왼쪽 -> 루트 -> 오른쪽)
+    static void inOrder(Node node) {
+        if (node == null) return;
+        inOrder(node.left);
+        sb.append(node.val);
+        inOrder(node.right);
     }
 
-    static void postOrder(String node) {
-        String left = tree.get(node).get(0);
-        String right = tree.get(node).get(1);
-
-        if (!left.equals(".")) postOrder(left);
-        if (!right.equals(".")) postOrder(right);
-        sb.append(node);
+    // 후위 순회 (왼쪽 -> 오른쪽 -> 루트)
+    static void postOrder(Node node) {
+        if (node == null) return;
+        postOrder(node.left);
+        postOrder(node.right);
+        sb.append(node.val);
     }
 }
